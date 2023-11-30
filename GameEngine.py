@@ -43,15 +43,22 @@ class GameEngine:
     pass
   
   # todo by dhruv
-  def printField():
-    pass
+  def getScore(self):
+    return self.score
   
   # todo by dhruv
-  def getScore():
-    pass
-  
-  # todo by dhruv
-  def moveRabbits():
+  def moveRabbits(self):
+    for rabbit in self._rabbits:
+      directions = [[0,0], [0,1], [0, -1], [-1, 0], [1,0], [-1, 1], [1, 1], [-1, -1], [1, -1]]
+      new_direction = random.randint(0, len(directions)-1)
+      
+      rabbit_x = rabbit.getX()
+      rabbit_y = rabbit.getY()
+      rabbit_x += new_direction[0]
+      rabbit_y += new_direction[1]
+      
+      rabbit.setX(rabbit_x)
+      rabbit.setY(rabbit_y)
     pass
   
   # todo by dhruv
