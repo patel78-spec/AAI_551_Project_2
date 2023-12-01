@@ -1,5 +1,5 @@
 # todo 
-# Authors: {Your Name}, Dhruv Patel
+# Authors: Gai Li Ho, Dhruv Patel
 # Date:
 # Description:
 
