@@ -14,20 +14,22 @@ class GameEngine:
     NUMBEROFVEGGIES = 30
     NUMBEROFRABBITS = 5
     HIGHSCOREFILE = 'highscore.data'
-  
+
+
     # todo constructor by cora
     def __init__(self):
         self.field = []
         self.rabbits_in_filed = []
-        self.captain_objects = None
+        self.captain = None
         self.possible_veggies = []
         self.score = 0
+
 
     # todo by cora
     def initVeggies(self):
         # continuously prompt to user for the name of veggie file until user provide non-empty string
         veggie_filename = ""
-        while len(veggie_filename) == 0:
+        while veggie_filename == "":
             veggie_filename = input("Please enter the name of the vegetable point file: ").strip()
 
         # continuously prompt to user for the valid name of veggie file until the file name does exist in the path
@@ -51,7 +53,7 @@ class GameEngine:
             # read the next line
             line = veggie_file.readline().strip().split(",")
 
-        # randomly initialize the NUMBEROFVEGGIES number of possible_veggies into the field
+        # randomly initialize the {NUMBEROFVEGGIES} number of possible_veggies into the field
         veggies_plant = []
         for i in range(self.NUMBEROFVEGGIES):
             # get a random number between 0 and the size of possible_veggies -1, inclusively
@@ -79,22 +81,89 @@ class GameEngine:
 
     # todo by cora
     def initCaptain(self):
-        pass
+        # choose a random position for captain
+        # get a random number between 0 and x-axis of the field for x position
+        x = random.randint(0, len(self.field) - 1)
+        # get a random number between 0 and y-axis of the field for y position
+        y = random.randint(0, len(self.field[0]) - 1)
+        # continuously generate random x and y until the (x,y) position is not None
+        while self.field[x][y] is not None:
+            # get the random x y position again
+            x = random.randint(0, len(self.field) - 1)
+            y = random.randint(0, len(self.field[0]) - 1)
+        # initialize the captain object
+        self.captain = Captain(x, y)
+        # put the captain symbol into field
+        self.field[x][y] = "V"
+
 
     # todo by cora
     def initRabbit(self):
-        pass
+        # arrange the {NUMBEROFRABBITS} number of rabbits into the field
+        for i in range(self.NUMBEROFRABBITS):
+            # get a random number between 0 and x-axis of the field for x position
+            x = random.randint(0, len(self.field) - 1)
+            # get a random number between 0 and y-axis of the field for y position
+            y = random.randint(0, len(self.field[0]) - 1)
+            # continuously generate random x and y until the (x,y) position is not None
+            while self.field[x][y] is not None:
+                # get the random x y position again
+                x = random.randint(0, len(self.field) - 1)
+                y = random.randint(0, len(self.field[0]) - 1)
+            # put the Rabbit symbol into the (x, y) position
+            self.field[x][y] = "R"
+            # initialize a Rabbit object
+            r1 = Rabbit(x, y)
+            # and put it into Rabbits_in_field list
+            self.rabbits_in_filed.append(r1)
+
 
     # todo by cora
     def initializeGame(self):
-        pass
+        # calling initialization methods
+        self.initVeggies()
+        self.initCaptain()
+        self.initRabbit()
+
 
     # todo by cora
     def remainingVeggies(self):
-        pass
+        # variable to save how mang vegetables in the field
+        count_veggies = 0
+        # iterate the filed
+        for i in range(len(self.field)):
+            for j in range(len(self.field[0])):
+                # when the current location is not neither rabbit nor captain nor none
+                if self.field[i][j] != "R" and self.field[i][j] != "V" and self.field[i][j] is not None:
+                    # increase count_veggies by 1
+                    count_veggies += 1
+        return count_veggies
+
+
+    # todo by cora
+    def intro(self):
+        # print welcome
+        print("Welcome to Captain Veggie!")
+        # explain the game
+        print("The rabbits have invaded your garden and you must harvest "
+              "as many vegetables as possible before the rabbits eat them "
+              "all! Each vegetable is worth a different number of points"
+              "so go for the high score!\n")
+
+        # list all possible vegetables in the field
+        print("The vegetables are:")
+        for v in self.possible_veggies:
+            # print the information of vegetable one by one
+            print(f"{v.getSymbol()}: {v.getName()} {v.getPoint()} points")
+
+        # print the symbol for captain and rabbits
+        print("\nCaptain Veggie is V, and the rabbits are R's.\n")
+        print("Good luck!")
+
 
     # todo by cora
     def printField(self):
+
         pass
 
     # todo by dhruv
