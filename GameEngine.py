@@ -163,8 +163,25 @@ class GameEngine:
 
     # todo by cora
     def printField(self):
+        remaining_veggies = self.remainingVeggies()
+        # print remaining vegetables in the field, and total score user gets so far
+        print(f"{remaining_veggies} veggies remaining. Current score: {self.score}")
+        width = 2*len(self.field)+2
 
-        pass
+        # print up border
+        for i in range(width):
+            print("#")
+        # print the field line by line
+        for i in range(len(self.field)):
+            # print the left border
+            print("#", end="")
+            for j in range(len(self.field[0])):
+                print(f" {self.field[i][j]}", end=" ")
+            # print right border
+            print("#\n")
+        # print lower border
+        for i in range(width):
+            print("#")
 
     # todo by dhruv
     def getScore(self):
