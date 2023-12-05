@@ -27,14 +27,14 @@ class GameEngine:
     
     def __get_random_coordinates(self):
         # get a random number between 0 and x-axis of the field for x position
-        x = random.randint(0, len(self.field_size[0]) - 1)
+        x = random.randint(0, self.field_size[0] - 1)
         # get a random number between 0 and y-axis of the field for y position
-        y = random.randint(0, len(self.field_size[1]) - 1)
+        y = random.randint(0, self.field_size[1] - 1)
         # continuously generate random x and y until the (x,y) position is not None
         while self.field[x][y] is not None:
             # get the random x y position again
-            x = random.randint(0, len(self.field_size[0]) - 1)
-            y = random.randint(0, len(self.field_size[1]) - 1)
+            x = random.randint(0, self.field_size[0] - 1)
+            y = random.randint(0, self.field_size[1] - 1)
         return x, y
         
 
@@ -47,23 +47,22 @@ class GameEngine:
             veggie_filename = input("Please enter the name of the vegetable point file: ").strip()
 
         # continuously prompt to user for the valid name of veggie file until the file name does exist in the path
-        while not os.path.exist(veggie_filename):
+        while not os.path.exists(veggie_filename):
             veggie_filename = input(f"{veggie_filename} does not exist, please enter a valid name of the vegetable point file: ")
         # open the file in read mode
         veggie_file = open(veggie_filename, "r")
 
         # read the first line of the file to initialize the field list
-        self.field_size = veggie_file.readline().strip().split(",")
+        self.field_size = list(map(int,veggie_file.readline().strip().split(",")[1:]))
         # initialize the field basd on the information in field_size
-        self.field =[[None for i in range(self.field_size[2])] for j in range(self.field_size[1])]
+        self.field =[[None for i in range(self.field_size[1])] for j in range(self.field_size[0])]
 
         # read left lines to initialize the possible_veggie list
         line = veggie_file.readline().strip().split(",")
-        while len(line) > 0:
+        while len(line) > 1:
             # initialize the Veggie object based on information in line
-            v1 = Veggie(line[0], line[1], line[2])
             # add the Veggie object into possible_veggies list
-            self.possible_veggies.append(v1)
+            self.possible_veggies.append(Veggie(line[0], line[1], int(line[2])))
             # read the next line
             line = veggie_file.readline().strip().split(",")
 
@@ -73,7 +72,7 @@ class GameEngine:
             # get a random number between 0 and the size of possible_veggies -1, inclusively
             random_no = random.randint(0, len(self.possible_veggies)-1)
             # get the symbol of the Veggie object and add it to veggies_plant
-            veggies_plant.append(self.possible_veggies[random_no].getSymbol())
+            veggies_plant.append(self.possible_veggies[random_no])
 
         # plant these vegetables into fields at a random position
         for v in veggies_plant:
@@ -124,7 +123,7 @@ class GameEngine:
         for i in range(len(self.field)):
             for j in range(len(self.field[0])):
                 # when the current location is not neither rabbit nor captain nor none
-                if self.field[i][j].getInhabitant() != "R" and self.field[i][j].getInhabitant() != "V" and self.field[i][j] is not None:
+                if self.field[i][j] is not None and self.field[i][j].getInhabitant() != "R" and self.field[i][j].getInhabitant() != "V":
                     # increase count_veggies by 1
                     count_veggies += 1
         return count_veggies
@@ -144,7 +143,6 @@ class GameEngine:
         print("The vegetables are:")
         for v in self.possible_veggies:
             # print the information of vegetable one by one
-            # print(f"{v.getSymbol()}: {v.getName()} {v.getPoint()} points")
             print(v)
 
         # print the symbol for captain and rabbits
@@ -157,22 +155,26 @@ class GameEngine:
         remaining_veggies = self.remainingVeggies()
         # print remaining vegetables in the field, and total score user gets so far
         print(f"{remaining_veggies} veggies remaining. Current score: {self.score}")
-        width = 2*len(self.field)+2
+        width = 3*len(self.field)+4
 
         # print up border
         for i in range(width):
-            print("#")
+            print("#",end="")
+        print()
         # print the field line by line
         for i in range(len(self.field)):
             # print the left border
-            print("#", end="")
+            print("#  ", end="")
             for j in range(len(self.field[0])):
-                print(f" {self.field[i][j]}", end=" ")
+                if self.field[i][j]:
+                    print(f"{self.field[i][j].getInhabitant()}", end="  ")
+                else:
+                    print(" ",end = "  ")
             # print right border
-            print("#\n")
+            print("#")
         # print lower border
         for i in range(width):
-            print("#")
+            print("#",end="")
 
     # todo by dhruv
     def getScore(self):
@@ -191,7 +193,12 @@ class GameEngine:
             if p == (x,y):
                 continue
             if not self.__check_move(*p):
-                if self.field[p[0]][p[1]].getInhabitant() != "C" and self.field[p[0]][p[1]].getInhabitant() != "R":
+                if not self.field[p[0]][p[1]]:
+                    r.setX(p[0])
+                    r.setY(p[1])
+                    self.field[p[0]][p[1]] = r
+                    self.field[x][y] = None
+                if self.field[p[0]][p[1]].getInhabitant() != "V" and self.field[p[0]][p[1]].getInhabitant() != "R":
                     r.setX(p[0])
                     r.setY(p[1])
                     self.field[p[0]][p[1]] = r
@@ -201,28 +208,30 @@ class GameEngine:
     def moveCptVertical(self,up=True):
         x,y = self.captain.getX(),self.captain.getY()
         if up:
-            if self.field[x+1][y].getInhabitant() == 'R':
+            if self.field[x-1][y] and self.field[x-1][y].getInhabitant() == 'R':
                 print("Don't step on the bunnies!")
                 return
             else:
-                if self.field[x+1][y].getInhabitant() == "V":
-                    self.captain.addVeggie(self.field[x+1][y])
-                    print(f"Yummy! A delicious {self.field[x+1][y].getName()}")
-                self.captain.setX(x+1)
-                self.captain.setY(y)
-                self.field[x+1][y] = self.captain
-                self.field[x][y] = None
-        else:
-            if self.field[x-1][y].getInhabitant() == 'R':
-                print("Don't step on the bunnies!")
-                return
-            else:
-                if self.field[x+1][y].getInhabitant() == "V":
+                if self.field[x-1][y] and type(self.field[x-1][y]) is Veggie:
                     self.captain.addVeggie(self.field[x-1][y])
+                    self.score += self.field[x-1][y].getPoint()
                     print(f"Yummy! A delicious {self.field[x-1][y].getName()}")
                 self.captain.setX(x-1)
                 self.captain.setY(y)
                 self.field[x-1][y] = self.captain
+                self.field[x][y] = None
+        else:
+            if self.field[x+1][y] and self.field[x+1][y].getInhabitant() == 'R':
+                print("Don't step on the bunnies!")
+                return
+            else:
+                if self.field[x+1][y] and type(self.field[x+1][y]) is Veggie:
+                    self.captain.addVeggie(self.field[x+1][y])
+                    self.score += self.field[x+1][y].getPoint()
+                    print(f"Yummy! A delicious {self.field[x+1][y].getName()}")
+                self.captain.setX(x+1)
+                self.captain.setY(y)
+                self.field[x+1][y] = self.captain
                 self.field[x][y] = None
         
 
@@ -230,24 +239,26 @@ class GameEngine:
     def moveCptHorizontal(self,left=True):
         x,y = self.captain.getX(),self.captain.getY()
         if left:
-            if self.field[x][y-1].getInhabitant() == 'R':
+            if self.field[x][y-1] and self.field[x][y-1].getInhabitant() == 'R':
                 print("Don't step on the bunnies!")
                 return
             else:
-                if self.field[x][y-1].getInhabitant() == "V":
+                if self.field[x][y-1] and type(self.field[x][y-1]) is Veggie:
                     self.captain.addVeggie(self.field[x][y-1])
+                    self.score += self.field[x][y-1].getPoint()
                     print(f"Yummy! A delicious {self.field[x][y-1].getName()}")
                 self.captain.setX(x)
                 self.captain.setY(y-1)
                 self.field[x][y-1] = self.captain
                 self.field[x][y] = None
         else:
-            if self.field[x][y+1].getInhabitant() == 'R':
+            if self.field[x][y+1] and self.field[x][y+1].getInhabitant() == 'R':
                 print("Don't step on the bunnies!")
                 return
             else:
-                if self.field[x][y+1].getInhabitant() == "V":
+                if self.field[x][y+1] and type(self.field[x][y+1]) is Veggie:
                     self.captain.addVeggie(self.field[x][y+1])
+                    self.score += self.field[x][y+1].getPoint()
                     print(f"Yummy! A delicious {self.field[x][y+1].getName()}")
                 self.captain.setX(x)
                 self.captain.setY(y+1)
@@ -256,7 +267,7 @@ class GameEngine:
 
     # todo by dhruv
     def moveCaptain(self):
-        move = input("Would you like to move up(W), down(S), left(A), or right(D): ").lower()
+        move = input("\nWould you like to move up(W), down(S), left(A), or right(D): ").lower()
         if move == 'w':
             if self.captain.getX() - 1 < 0:
                 print("You can't move that way!")
@@ -266,24 +277,54 @@ class GameEngine:
             if self.captain.getX() + 1 >= self.field_size[0]:
                 print("You can't move that way!")
             else:
-                self.moveCptVertical(True)
+                self.moveCptVertical(False)
         elif move == 'a':
             if self.captain.getY() - 1 < 0:
                 print("You can't move that way!")
             else:
-                self.moveCptVertical(True)
+                self.moveCptHorizontal(True)
         elif move == 'd':
-            if self.captain.getX() + 1 >= self.field_size[1]:
+            if self.captain.getY() + 1 >= self.field_size[1]:
                 print("You can't move that way!")
             else:
-                self.moveCptVertical(True)
+                self.moveCptHorizontal(False)
         else:
             print(f"{move} is not a valid option")
 
     # todo by dhruv
     def gameOver(self):
-        pass
+        print("Game Over")
+        print("You managed to harvest the following vegetables:")
+        for v in self.captain.getAllVeggies():
+            print(v.getName())
+        print(f"Your score was: {self.score}")
 
     # todo by dhruv
     def highScore(self):
-        pass
+        initials = input("Please enter your three initials to go on the scoreboard: ").upper()
+        print("HIGH SCORES")
+        print("Name\tScore")
+        high_score_list = []
+        if not os.path.exists(self.HIGHSCOREFILE):
+            high_score_list.append((initials,self.score))
+            with open(self.HIGHSCOREFILE,"wb") as f:
+                pickle.dump(high_score_list,f)
+            print(f"{initials}\t{self.score}")
+            return
+        
+        with open(self.HIGHSCOREFILE,"rb") as f:
+            high_score_list = pickle.load(f)
+        
+        for i,data in enumerate(high_score_list):
+            if data[1] < self.score:
+                break
+        
+        high_score_list.insert(i, (initials,self.score))
+        
+        for data in high_score_list:
+            print(f"{data[0]}\t{data[1]}")
+        
+        with open(self.HIGHSCOREFILE, "wb") as f:
+            pickle.dump(high_score_list,f)
+            
+        

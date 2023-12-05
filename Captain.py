@@ -9,7 +9,7 @@ from Creature import Creature
 class Captain(Creature):
 
     def __init__(self, x, y):
-        Creature.__init__(x, y, "V")
+        Creature.__init__(self, x, y, "V")
         self.__allVeggies = []
 
 

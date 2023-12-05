@@ -10,7 +10,7 @@ class Veggie(FieldInhabitant):
 
     def __init__(self, name, symbol, point):
         # call the init method in FieldInhabitant with Veggie text symbol
-        FieldInhabitant.__init__(symbol)
+        FieldInhabitant.__init__(self,symbol)
         self.__name = name
         self.__symbol = symbol
         self.__point = point
@@ -38,5 +38,5 @@ class Veggie(FieldInhabitant):
 
 
     def __str__(self):
-        print(f"{self.__symbol}: {self.__name} {self.__point} points")
+        return f"{self.__symbol}: {self.__name} {self.__point} points"
 
