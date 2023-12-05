@@ -19,10 +19,24 @@ class GameEngine:
     # todo constructor by cora
     def __init__(self):
         self.field = []
+        self.field_size = None
         self.rabbits_in_filed = []
         self.captain = None
         self.possible_veggies = []
         self.score = 0
+    
+    def __get_random_coordinates(self):
+        # get a random number between 0 and x-axis of the field for x position
+        x = random.randint(0, len(self.field_size[0]) - 1)
+        # get a random number between 0 and y-axis of the field for y position
+        y = random.randint(0, len(self.field_size[1]) - 1)
+        # continuously generate random x and y until the (x,y) position is not None
+        while self.field[x][y] is not None:
+            # get the random x y position again
+            x = random.randint(0, len(self.field_size[0]) - 1)
+            y = random.randint(0, len(self.field_size[1]) - 1)
+        return x, y
+        
 
 
     # todo by cora
@@ -39,9 +53,9 @@ class GameEngine:
         veggie_file = open(veggie_filename, "r")
 
         # read the first line of the file to initialize the field list
-        field_size = veggie_file.readline().strip().split(",")
+        self.field_size = veggie_file.readline().strip().split(",")
         # initialize the field basd on the information in field_size
-        self.field =[[None for i in range(field_size[2])] for j in range(field_size[1])]
+        self.field =[[None for i in range(self.field_size[2])] for j in range(self.field_size[1])]
 
         # read left lines to initialize the possible_veggie list
         line = veggie_file.readline().strip().split(",")
@@ -63,15 +77,7 @@ class GameEngine:
 
         # plant these vegetables into fields at a random position
         for v in veggies_plant:
-            # get a random number between 0 and x-axis of the field for x position
-            x = random.randint(0, field_size[2]-1)
-            # get a random number between 0 and y-axis of the field for y position
-            y = random.randint(0, field_size[1]-1)
-            # continuously generate random x and y until the (x,y) position is not None
-            while self.field[x][y] is not None:
-                # get the random x y position again
-                x = random.randint(0, field_size[2] - 1)
-                y = random.randint(0, field_size[1] - 1)
+            x, y = self.__get_random_coordinates()
             # put the Veggie symbol into the (x, y) position
             self.field[x][y] = v
 
@@ -82,38 +88,22 @@ class GameEngine:
     # todo by cora
     def initCaptain(self):
         # choose a random position for captain
-        # get a random number between 0 and x-axis of the field for x position
-        x = random.randint(0, len(self.field) - 1)
-        # get a random number between 0 and y-axis of the field for y position
-        y = random.randint(0, len(self.field[0]) - 1)
-        # continuously generate random x and y until the (x,y) position is not None
-        while self.field[x][y] is not None:
-            # get the random x y position again
-            x = random.randint(0, len(self.field) - 1)
-            y = random.randint(0, len(self.field[0]) - 1)
+        x, y = self.__get_random_coordinates()
         # initialize the captain object
         self.captain = Captain(x, y)
         # put the captain symbol into field
-        self.field[x][y] = "V"
+        self.field[x][y] = self.captain
 
 
     # todo by cora
     def initRabbit(self):
         # arrange the {NUMBEROFRABBITS} number of rabbits into the field
         for i in range(self.NUMBEROFRABBITS):
-            # get a random number between 0 and x-axis of the field for x position
-            x = random.randint(0, len(self.field) - 1)
-            # get a random number between 0 and y-axis of the field for y position
-            y = random.randint(0, len(self.field[0]) - 1)
-            # continuously generate random x and y until the (x,y) position is not None
-            while self.field[x][y] is not None:
-                # get the random x y position again
-                x = random.randint(0, len(self.field) - 1)
-                y = random.randint(0, len(self.field[0]) - 1)
-            # put the Rabbit symbol into the (x, y) position
-            self.field[x][y] = "R"
+            x, y = self.__get_random_coordinates()
             # initialize a Rabbit object
             r1 = Rabbit(x, y)
+            # put the Rabbit symbol into the (x, y) position
+            self.field[x][y] = r1
             # and put it into Rabbits_in_field list
             self.rabbits_in_filed.append(r1)
 
@@ -134,7 +124,7 @@ class GameEngine:
         for i in range(len(self.field)):
             for j in range(len(self.field[0])):
                 # when the current location is not neither rabbit nor captain nor none
-                if self.field[i][j] != "R" and self.field[i][j] != "V" and self.field[i][j] is not None:
+                if self.field[i][j].getInhabitant() != "R" and self.field[i][j].getInhabitant() != "V" and self.field[i][j] is not None:
                     # increase count_veggies by 1
                     count_veggies += 1
         return count_veggies
@@ -154,7 +144,8 @@ class GameEngine:
         print("The vegetables are:")
         for v in self.possible_veggies:
             # print the information of vegetable one by one
-            print(f"{v.getSymbol()}: {v.getName()} {v.getPoint()} points")
+            # print(f"{v.getSymbol()}: {v.getName()} {v.getPoint()} points")
+            print(v)
 
         # print the symbol for captain and rabbits
         print("\nCaptain Veggie is V, and the rabbits are R's.\n")
@@ -186,22 +177,108 @@ class GameEngine:
     # todo by dhruv
     def getScore(self):
         return self.score
+    
+    def __check_move(self,x,y):
+        return x >= self.field_size[0] or x < 0 or y >= self.field_size[1] or y < 0
+        
 
     # todo by dhruv
     def moveRabbits(self):
-        pass
+        for r in self.rabbits_in_filed:
+            x,y = r.getX(), r.getY()
+            p = [(x,y),(x,y+1),(x,y-1),(x+1,y),(x,y-1),(x+1,y+1),(x+1,y-1),(x-1,y+1),(x-1,y-1)]
+            p = random.sample(p,1)[0]
+            if p == (x,y):
+                continue
+            if not self.__check_move(*p):
+                if self.field[p[0]][p[1]].getInhabitant() != "C" and self.field[p[0]][p[1]].getInhabitant() != "R":
+                    r.setX(p[0])
+                    r.setY(p[1])
+                    self.field[p[0]][p[1]] = r
+                    self.field[x][y] = None
 
     # todo by dhruv
-    def moveCptVertical(self):
-        pass
+    def moveCptVertical(self,up=True):
+        x,y = self.captain.getX(),self.captain.getY()
+        if up:
+            if self.field[x+1][y].getInhabitant() == 'R':
+                print("Don't step on the bunnies!")
+                return
+            else:
+                if self.field[x+1][y].getInhabitant() == "V":
+                    self.captain.addVeggie(self.field[x+1][y])
+                    print(f"Yummy! A delicious {self.field[x+1][y].getName()}")
+                self.captain.setX(x+1)
+                self.captain.setY(y)
+                self.field[x+1][y] = self.captain
+                self.field[x][y] = None
+        else:
+            if self.field[x-1][y].getInhabitant() == 'R':
+                print("Don't step on the bunnies!")
+                return
+            else:
+                if self.field[x+1][y].getInhabitant() == "V":
+                    self.captain.addVeggie(self.field[x-1][y])
+                    print(f"Yummy! A delicious {self.field[x-1][y].getName()}")
+                self.captain.setX(x-1)
+                self.captain.setY(y)
+                self.field[x-1][y] = self.captain
+                self.field[x][y] = None
+        
 
     # todo by dhruv
-    def moveCptHorizontal(self):
-        pass
+    def moveCptHorizontal(self,left=True):
+        x,y = self.captain.getX(),self.captain.getY()
+        if left:
+            if self.field[x][y-1].getInhabitant() == 'R':
+                print("Don't step on the bunnies!")
+                return
+            else:
+                if self.field[x][y-1].getInhabitant() == "V":
+                    self.captain.addVeggie(self.field[x][y-1])
+                    print(f"Yummy! A delicious {self.field[x][y-1].getName()}")
+                self.captain.setX(x)
+                self.captain.setY(y-1)
+                self.field[x][y-1] = self.captain
+                self.field[x][y] = None
+        else:
+            if self.field[x][y+1].getInhabitant() == 'R':
+                print("Don't step on the bunnies!")
+                return
+            else:
+                if self.field[x][y+1].getInhabitant() == "V":
+                    self.captain.addVeggie(self.field[x][y+1])
+                    print(f"Yummy! A delicious {self.field[x][y+1].getName()}")
+                self.captain.setX(x)
+                self.captain.setY(y+1)
+                self.field[x][y+1] = self.captain
+                self.field[x][y] = None
 
     # todo by dhruv
     def moveCaptain(self):
-        pass
+        move = input("Would you like to move up(W), down(S), left(A), or right(D): ").lower()
+        if move == 'w':
+            if self.captain.getX() - 1 < 0:
+                print("You can't move that way!")
+            else:
+                self.moveCptVertical(True)
+        elif move == 's':
+            if self.captain.getX() + 1 >= self.field_size[0]:
+                print("You can't move that way!")
+            else:
+                self.moveCptVertical(True)
+        elif move == 'a':
+            if self.captain.getY() - 1 < 0:
+                print("You can't move that way!")
+            else:
+                self.moveCptVertical(True)
+        elif move == 'd':
+            if self.captain.getX() + 1 >= self.field_size[1]:
+                print("You can't move that way!")
+            else:
+                self.moveCptVertical(True)
+        else:
+            print(f"{move} is not a valid option")
 
     # todo by dhruv
     def gameOver(self):
