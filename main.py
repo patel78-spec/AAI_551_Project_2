@@ -15,6 +15,7 @@ def main():
         game.printField()
         game.moveRabbits()
         game.moveCaptain()
+        game.moveSnake()
     
     game.gameOver()
     game.highScore()

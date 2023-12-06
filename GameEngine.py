@@ -9,6 +9,7 @@ import pickle
 from Veggie import Veggie
 from Captain import Captain
 from Rabbit import Rabbit
+from Snake import Snake
 
 class GameEngine:
     NUMBEROFVEGGIES = 30
@@ -24,6 +25,7 @@ class GameEngine:
         self.captain = None
         self.possible_veggies = []
         self.score = 0
+        self.snake = None
     
     def __get_random_coordinates(self):
         # get a random number between 0 and x-axis of the field for x position
@@ -105,6 +107,14 @@ class GameEngine:
             self.field[x][y] = r1
             # and put it into Rabbits_in_field list
             self.rabbits_in_filed.append(r1)
+    
+    def initSnake(self):
+        # choose a random position for captain
+        x, y = self.__get_random_coordinates()
+        # initialize the captain object
+        self.snake = Snake(x, y)
+        # put the captain symbol into field
+        self.field[x][y] = self.snake
 
 
     # todo by cora
@@ -113,6 +123,7 @@ class GameEngine:
         self.initVeggies()
         self.initCaptain()
         self.initRabbit()
+        self.initSnake()
 
 
     # todo by cora
@@ -123,7 +134,7 @@ class GameEngine:
         for i in range(len(self.field)):
             for j in range(len(self.field[0])):
                 # when the current location is not neither rabbit nor captain nor none
-                if self.field[i][j] is not None and self.field[i][j].getInhabitant() != "R" and self.field[i][j].getInhabitant() != "V":
+                if self.field[i][j] is not None and self.field[i][j].getInhabitant() != "R" and self.field[i][j].getInhabitant() != "V" and self.field[i][j].getInhabitant() != "S":
                     # increase count_veggies by 1
                     count_veggies += 1
         return count_veggies
@@ -198,11 +209,32 @@ class GameEngine:
                     r.setY(p[1])
                     self.field[p[0]][p[1]] = r
                     self.field[x][y] = None
-                if self.field[p[0]][p[1]].getInhabitant() != "V" and self.field[p[0]][p[1]].getInhabitant() != "R":
+                # elif self.field[p[0]][p[1]].getInhabitant() != "V" and self.field[p[0]][p[1]].getInhabitant() != "R" and self.field[p[0]][p[1]].getInhabitant() != "S":
+                elif type(self.field[p[0]][p[1]]) is Veggie:    
                     r.setX(p[0])
                     r.setY(p[1])
                     self.field[p[0]][p[1]] = r
                     self.field[x][y] = None
+    
+    def moveSnake(self):
+        v_x, v_y = self.captain.getX(), self.captain.getY()
+        s_x, s_y = self.snake.getX(), self.snake.getY()
+        d_x, d_y = s_x - v_x, s_y - v_y
+        p = (s_x - int((d_x) / abs(d_x)), s_y) if abs(d_x) > abs(d_y) else (s_x, s_y - int((d_y) / abs(d_y)))
+        if not self.field[p[0]][p[1]]:
+            self.snake.setX(p[0])
+            self.snake.setY(p[1])
+            self.field[p[0]][p[1]] = self.snake
+            self.field[s_x][s_y] = None
+        elif self.field[p[0]][p[1]].getInhabitant() == "V":
+            print("Oops! The Snake bite you. You lost last 5 Veggies")
+            veggies = self.captain.getAllVeggies()[:-5]
+            self.score = 0
+            self.captain.setAllVeggies(veggies)
+            for v in veggies:
+                self.score += v.getPoint()
+            self.field[s_x][s_y] = None
+            self.initSnake()
 
     # todo by dhruv
     def moveCptVertical(self,up=True):
@@ -301,7 +333,7 @@ class GameEngine:
 
     # todo by dhruv
     def highScore(self):
-        initials = input("Please enter your three initials to go on the scoreboard: ").upper()
+        initials = input("Please enter your three initials to go on the scoreboard: ").upper()[:3]
         print("HIGH SCORES")
         print("Name\tScore")
         high_score_list = []
