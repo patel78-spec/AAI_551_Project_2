@@ -1,6 +1,5 @@
-# todo 
 # Authors: Gai Li Ho, Dhruv Patel
-# Date:
+# Date: 12/05/2023
 # Description:
 
 from Creature import Creature

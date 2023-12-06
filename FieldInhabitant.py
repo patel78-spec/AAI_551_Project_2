@@ -1,7 +1,6 @@
-# todo 
 # Authors: Gai Li Ho, Dhruv Patel
-# Date:
-# Description:
+# Date: 12/05/2023
+# Description: This is the Field Inhabitant class
 
 class FieldInhabitant:
 

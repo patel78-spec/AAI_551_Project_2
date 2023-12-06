@@ -1,6 +1,5 @@
-# todo 
-# Authors: {Your Name}, Dhruv Patel
-# Date:
+# Authors: Gai Li Ho, Dhruv Patel
+# Date: 12/05/2023
 # Description:
 
 from GameEngine import GameEngine
@@ -15,6 +14,8 @@ def main():
         game.printField()
         game.moveRabbits()
         game.moveCaptain()
+        if game.remainingVeggies() == 0:
+            break
         game.moveSnake()
     
     game.gameOver()
