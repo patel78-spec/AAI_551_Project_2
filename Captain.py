@@ -1,7 +1,6 @@
-# todo 
 # Authors: Gai Li Ho, Dhruv Patel
-# Date:
-# Description:
+# Date: 12/05/2023
+# Description: This is the captain class
 
 from Creature import Creature
 
@@ -9,7 +8,13 @@ from Creature import Creature
 class Captain(Creature):
 
     def __init__(self, x, y):
-        Creature.__init__("V", x, y)
+        """Constructor for captain
+
+        Args:
+            x (int): x-cordinate
+            y (int): y-cordinate
+        """
+        Creature.__init__(self, x, y, "V")
         self.__allVeggies = []
 
 

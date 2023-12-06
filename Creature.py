@@ -1,7 +1,6 @@
-# todo 
 # Authors: Gai Li Ho, Dhruv Patel
-# Date:
-# Description:
+# Date: 12/05/2023
+# Description: This is the Creature class
 
 from FieldInhabitant import FieldInhabitant
 
@@ -9,7 +8,7 @@ from FieldInhabitant import FieldInhabitant
 class Creature(FieldInhabitant):
 
     def __init__(self, x, y, symbol):
-        FieldInhabitant.__init__(symbol)
+        FieldInhabitant.__init__(self,symbol)
         self.__x = x
         self.__y = y
 

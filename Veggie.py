@@ -1,6 +1,5 @@
-# todo 
 # Authors: Gai Li Ho, Dhruv Patel
-# Date:
+# Date: 12/05/2023
 # Description:
 
 from FieldInhabitant import FieldInhabitant
@@ -9,8 +8,15 @@ from FieldInhabitant import FieldInhabitant
 class Veggie(FieldInhabitant):
 
     def __init__(self, name, symbol, point):
+        """This is the constructor
+
+        Args:
+            name (str): name of the inhabitant
+            symbol (str): Symbol used for representation
+            point (int): points assigned to this veggie
+        """
         # call the init method in FieldInhabitant with Veggie text symbol
-        FieldInhabitant.__init__(symbol)
+        FieldInhabitant.__init__(self,symbol)
         self.__name = name
         self.__symbol = symbol
         self.__point = point
@@ -38,5 +44,5 @@ class Veggie(FieldInhabitant):
 
 
     def __str__(self):
-        print(f"{self.__symbol}: {self.__name} {self.__point} points")
+        return f"{self.__symbol}: {self.__name} {self.__point} points"
 
