@@ -160,7 +160,9 @@ class GameEngine:
             print(v)
 
         # print the symbol for captain and rabbits
-        print("\nCaptain Veggie is V, and the rabbits are R's.\n")
+        print("\nCaptain Veggie is V, and the rabbits are R's.")
+        if self.snake:
+            print("Snake is S.\n")
         print("Good luck!")
 
 
