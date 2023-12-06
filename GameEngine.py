@@ -109,12 +109,15 @@ class GameEngine:
             self.rabbits_in_filed.append(r1)
     
     def initSnake(self):
-        # choose a random position for captain
-        x, y = self.__get_random_coordinates()
-        # initialize the captain object
-        self.snake = Snake(x, y)
-        # put the captain symbol into field
-        self.field[x][y] = self.snake
+        if not self.snake:
+            snake_check = input("Do you want a snake in your game Yes(y) or No(n): ").lower()
+        if self.snake or snake_check == 'y':
+            # choose a random position for captain
+            x, y = self.__get_random_coordinates()
+            # initialize the captain object
+            self.snake = Snake(x, y)
+            # put the captain symbol into field
+            self.field[x][y] = self.snake
 
 
     # todo by cora
@@ -217,24 +220,25 @@ class GameEngine:
                     self.field[x][y] = None
     
     def moveSnake(self):
-        v_x, v_y = self.captain.getX(), self.captain.getY()
-        s_x, s_y = self.snake.getX(), self.snake.getY()
-        d_x, d_y = s_x - v_x, s_y - v_y
-        p = (s_x - int((d_x) / abs(d_x)), s_y) if abs(d_x) > abs(d_y) else (s_x, s_y - int((d_y) / abs(d_y)))
-        if not self.field[p[0]][p[1]]:
-            self.snake.setX(p[0])
-            self.snake.setY(p[1])
-            self.field[p[0]][p[1]] = self.snake
-            self.field[s_x][s_y] = None
-        elif self.field[p[0]][p[1]].getInhabitant() == "V":
-            print("Oops! The Snake bite you. You lost last 5 Veggies")
-            veggies = self.captain.getAllVeggies()[:-5]
-            self.score = 0
-            self.captain.setAllVeggies(veggies)
-            for v in veggies:
-                self.score += v.getPoint()
-            self.field[s_x][s_y] = None
-            self.initSnake()
+        if self.snake:
+            v_x, v_y = self.captain.getX(), self.captain.getY()
+            s_x, s_y = self.snake.getX(), self.snake.getY()
+            d_x, d_y = s_x - v_x, s_y - v_y
+            p = (s_x - int((d_x) / abs(d_x)), s_y) if abs(d_x) > abs(d_y) else (s_x, s_y - int((d_y) / abs(d_y)))
+            if not self.field[p[0]][p[1]]:
+                self.snake.setX(p[0])
+                self.snake.setY(p[1])
+                self.field[p[0]][p[1]] = self.snake
+                self.field[s_x][s_y] = None
+            elif self.field[p[0]][p[1]].getInhabitant() == "V":
+                print("Oops! The Snake bite you. You lost last 5 Veggies")
+                veggies = self.captain.getAllVeggies()[:-5]
+                self.score = 0
+                self.captain.setAllVeggies(veggies)
+                for v in veggies:
+                    self.score += v.getPoint()
+                self.field[s_x][s_y] = None
+                self.initSnake()
 
     # todo by dhruv
     def moveCptVertical(self,up=True):
@@ -347,11 +351,13 @@ class GameEngine:
         with open(self.HIGHSCOREFILE,"rb") as f:
             high_score_list = pickle.load(f)
         
-        for i,data in enumerate(high_score_list):
+        for i,data in range(len(high_score_list)):
             if data[1] < self.score:
                 break
-        
-        high_score_list.insert(i, (initials,self.score))
+        if i == len(high_score_list):
+            high_score_list.append((initials,self.score))
+        else:
+            high_score_list.insert(i, (initials,self.score))
         
         for data in high_score_list:
             print(f"{data[0]}\t{data[1]}")
