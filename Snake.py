@@ -5,8 +5,8 @@
 from Creature import Creature
 
 
-class Rabbit(Creature):
+class Snake(Creature):
 
 
     def __init__(self, x, y):
-        Creature.__init__(self, x, y, "R")
+        Creature.__init__(self, x, y, "S")
