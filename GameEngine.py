@@ -19,7 +19,7 @@ class GameEngine:
 
     # todo constructor by cora
     def __init__(self):
-        """This is the constructor class
+        """This is the constructor class with no parameters
         """
         self.__field = []
         self.__field_size = None
@@ -164,8 +164,8 @@ class GameEngine:
         # print the symbol for captain and rabbits
         print("\nCaptain Veggie is V, and the rabbits are R's.")
         if self.__snake:
-            print("Snake is S.\n")
-        print("Good luck!")
+            print("Snake is S.")
+        print("\nGood luck!")
 
 
     # todo by cora
@@ -173,7 +173,7 @@ class GameEngine:
         remaining_veggies = self.remainingVeggies()
         # print remaining vegetables in the field, and total score user gets so far
         print(f"{remaining_veggies} veggies remaining. Current score: {self.__score}")
-        width = 3*len(self.__field)+4
+        width = 3 * len(self.__field[0]) + 2
 
         # print up border
         for i in range(width):
@@ -182,17 +182,18 @@ class GameEngine:
         # print the field line by line
         for i in range(len(self.__field)):
             # print the left border
-            print("#  ", end="")
+            print("#", end="")
             for j in range(len(self.__field[0])):
                 if self.__field[i][j]:
-                    print(f"{self.__field[i][j].getInhabitant()}", end="  ")
+                    print(f" {self.__field[i][j].getInhabitant()}", end=" ")
                 else:
-                    print(" ",end = "  ")
+                    print("  ", end=" ")
             # print right border
             print("#")
         # print lower border
         for i in range(width):
             print("#",end="")
+        print()
 
     # todo by dhruv
     def getScore(self):
